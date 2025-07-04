@@ -1,8 +1,7 @@
-# Miles
-# ✈️ AwardFlightFinder
+# Miles ✈️
 
 **The open-source “Google Flights for miles.”**  
-AwardFlightFinder crawls airline & partner award inventories, converts rewards prices into ¢/point, and sends real-time alerts when seats you care about appear—all in a modular, developer-friendly monorepo.
+Miles crawls airline & partner award inventories, converts rewards prices into ¢/point, and sends real-time alerts when seats you care about appear—all in a modular, developer-friendly monorepo.
 
 ---
 
