@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# ------------------------------------------------------------
+# init-structure.sh
+#
+# This script initializes the Miles monorepo folder structure.
+# It creates all necessary directories and placeholder files for
+# apps, services, packages, infra, scripts, and docs.
+#
+# Usage:
+#   bash init-structure.sh
+#
+# Run this from the root of your repository.
+# ------------------------------------------------------------
+
 # Create directories
 mkdir -p .github/workflows
 mkdir -p apps/web/{app,components,lib,public}

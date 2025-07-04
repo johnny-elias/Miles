@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add this to ensure the React DatePicker calendar appears on top */
+.dark-datepicker {
+  z-index: 50 !important;
+}
