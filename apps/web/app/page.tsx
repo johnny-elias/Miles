@@ -1,5 +1,4 @@
 import SearchInterface from '../components/SearchInterface';
-import MapPlaceholder from '../components/MapPlaceholder';
 
 /**
  * This is the main home page component for the application.
@@ -16,7 +15,9 @@ export default function HomePage() {
       <SearchInterface />
 
       {/* The map placeholder is still displayed on the home page */}
-      <MapPlaceholder />
+      <div className="w-full h-80 border-2 border-dotted border-gray-400 rounded-xl flex items-center justify-center text-gray-500 text-xl">
+        Map Placeholder
+      </div>
     </div>
   );
 }

@@ -125,14 +125,16 @@ cp .env.example .env
 
 ```mermaid
 flowchart LR
-    UI[Next.js Front-end] -- GraphQL/tRPC --> API[Fastify API]
+    UI["Next.js Front-end"] -- "GraphQL/tRPC" --> API["Fastify API"]
     API --> DB[(PostgreSQL)]
     API --> Search[(Typesense)]
+    
     subgraph Workers
-        Crawler1[Lambda<br/>LifeMiles] --> DB
-        Crawler2[Lambda<br/>Aeroplan] --> DB
-        Alerts[SQS → Lambda<br/>Email/WebPush] <-- DB
+      Crawler1["Lambda\nLifeMiles"] --> DB
+      Crawler2["Lambda\nAeroplan"] --> DB
+      Alerts["SQS\nLambda\nEmail/WebPush"] <-- DB
     end
+    
     API <--> Redis[(Cache / PubSub)]
 ```
 

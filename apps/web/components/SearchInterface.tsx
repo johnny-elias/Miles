@@ -81,6 +81,13 @@ interface SearchInterfaceProps {
   };
 }
 
+// Helper for a close (X) icon
+function XIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" /></svg>
+  );
+}
+
 /**
  * A reusable component that encapsulates the entire flight search UI.
  * It can be initialized with search parameters.
@@ -129,6 +136,33 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [openDropdown]);
+
+  // Multi-city segments state
+  const [segments, setSegments] = useState([
+    { from: '', to: '', date: null },
+    { from: '', to: '', date: null },
+  ]);
+
+  // Handlers for multi-city
+  const handleSegmentChange = (idx: number, field: 'from' | 'to' | 'date', value: string | Date | null) => {
+    setSegments(segs => segs.map((seg, i) => i === idx ? { ...seg, [field]: value } : seg));
+  };
+  const handleAddSegment = () => {
+    setSegments(segs => [...segs, { from: '', to: '', date: null }]);
+  };
+  const handleRemoveSegment = (idx: number) => {
+    setSegments(segs => segs.length > 2 ? segs.filter((_, i) => i !== idx) : segs);
+  };
+
+  // Reset segments if tripType changes away from multicity
+  useEffect(() => {
+    if (tripType.value !== 'multicity') {
+      setSegments([
+        { from: '', to: '', date: null },
+        { from: '', to: '', date: null },
+      ]);
+    }
+  }, [tripType.value]);
 
   /**
    * Handles the search button click.
@@ -191,60 +225,113 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-center">
-          {/* Origin Input */}
-          <div className="lg:col-span-3">
-            <input
-              type="text"
-              placeholder="From"
-              value={origin}
-              onChange={(e) => setOrigin(e.target.value)}
-              className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Swap Button */}
-          <div className="lg:col-span-1 text-center">
-             <button onClick={handleSwapAirports} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+        {/* Multi-city dynamic segments */}
+        {tripType.value === 'multicity' ? (
+          <div className="space-y-4">
+            {segments.map((seg, idx) => (
+              <div key={idx} className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  placeholder="From"
+                  value={seg.from}
+                  onChange={e => handleSegmentChange(idx, 'from', e.target.value)}
+                  className="flex-1 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="To"
+                  value={seg.to}
+                  onChange={e => handleSegmentChange(idx, 'to', e.target.value)}
+                  className="flex-1 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <div className="relative w-full">
+                  <ReactDatePicker
+                    selected={seg.date}
+                    onChange={date => handleSegmentChange(idx, 'date', date)}
+                    placeholderText="Date"
+                    className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                {segments.length > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSegment(idx)}
+                    className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                    aria-label="Remove city"
+                  >
+                    <XIcon className="w-4 h-4 text-gray-500" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddSegment}
+              className="mt-2 text-sm text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1"
+            >
+              + Add city
             </button>
           </div>
-
-          {/* Destination Input */}
-          <div className="lg:col-span-3">
-            <input
-              type="text"
-              placeholder="To"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Date Pickers */}
-          <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <ReactDatePicker
-                selected={departureDate}
-                onChange={(date) => setDepartureDate(date)}
-                selectsStart
-                startDate={departureDate}
-                endDate={returnDate}
-                placeholderText="Departure"
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-center">
+            {/* Origin Input */}
+            <div className="lg:col-span-3">
+              <input
+                type="text"
+                placeholder="From"
+                value={origin}
+                onChange={(e) => setOrigin(e.target.value)}
                 className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <ReactDatePicker
-                selected={returnDate}
-                onChange={(date) => setReturnDate(date)}
-                selectsEnd
-                startDate={departureDate}
-                endDate={returnDate}
-                minDate={departureDate}
-                placeholderText="Return"
-                disabled={tripType.value !== 'roundtrip'}
-                className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            </div>
+
+            {/* Swap Button */}
+            <div className="lg:col-span-1 text-center">
+               <button onClick={handleSwapAirports} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+              </button>
+            </div>
+
+            {/* Destination Input */}
+            <div className="lg:col-span-3">
+              <input
+                type="text"
+                placeholder="To"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+
+            {/* Date Pickers */}
+            <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="relative w-full">
+                  <ReactDatePicker
+                    selected={departureDate}
+                    onChange={(date) => setDepartureDate(date)}
+                    selectsStart
+                    startDate={departureDate}
+                    endDate={returnDate}
+                    placeholderText="Departure"
+                    className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="relative w-full">
+                  <ReactDatePicker
+                    selected={returnDate}
+                    onChange={(date) => setReturnDate(date)}
+                    selectsEnd
+                    startDate={departureDate}
+                    endDate={returnDate}
+                    minDate={departureDate}
+                    placeholderText="Return"
+                    disabled={tripType.value !== 'roundtrip'}
+                    className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  />
+                </div>
+            </div>
           </div>
-        </div>
+        )}
         
         <div className="mt-6">
           <button
