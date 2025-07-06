@@ -8,8 +8,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@auth/core": "^0.40.0",
+    "@auth/prisma-adapter": "^2.10.0",
     "leaflet": "^1.9.4",
     "next": "^13.4.0",
+    "next-auth": "^4.24.11",
     "react": "^18.2.0",
     "react-datepicker": "^8.4.0",
     "react-dom": "^18.2.0",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import MapPlaceholder from './MapPlaceholder';
 import TripTypeDropdown from './TripTypeDropdown';
 import PeopleDropdown from './PeopleDropdown';
@@ -94,6 +95,8 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
  * It can be initialized with search parameters.
  */
 export default function SearchInterface({ initialSearchParams }: SearchInterfaceProps) {
+  const router = useRouter();
+
   // --- STATE MANAGEMENT ---
   // Each piece of the form state is managed here.
   // It's initialized either from the `initialSearchParams` prop or with default values.
@@ -168,7 +171,7 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
   /**
    * Handles the search button click.
    * It constructs a URL with all the form data as query parameters
-   * and opens this URL in a new browser tab.
+   * and navigates to the search results page.
    */
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -186,9 +189,9 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
     params.set('infants', people.infants.toString());
     params.set('fareClass', fareClass.value);
 
-    // Construct the final URL and open it in a new tab
+    // Navigate to the search results page
     const searchUrl = `/search?${params.toString()}`;
-    window.open(searchUrl, '_blank');
+    router.push(searchUrl);
   };
   
   // Swaps the origin and destination fields

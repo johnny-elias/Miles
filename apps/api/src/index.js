@@ -2,10 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
 var cors_1 = require("cors");
+var auth_1 = require("./routes/auth");
 var app = (0, express_1.default)();
 var PORT = process.env.PORT || 4000;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
+// Auth routes
+app.use('/auth', auth_1.default);
 // Toy in-memory database of flights
 var mockFlights = [
     {
@@ -13,8 +16,8 @@ var mockFlights = [
         flightNumber: 'DL123',
         from: 'JFK',
         to: 'LAX',
-        depart: '2024-07-01',
-        arrive: '2024-07-01',
+        depart: '2025-07-01',
+        arrive: '2025-07-01',
         duration: '6h 10m',
         stops: 0,
         fareClass: 'economy',
@@ -27,8 +30,8 @@ var mockFlights = [
         flightNumber: 'UA456',
         from: 'JFK',
         to: 'LAX',
-        depart: '2024-07-01',
-        arrive: '2024-07-01',
+        depart: '2025-07-01',
+        arrive: '2025-07-01',
         duration: '6h 20m',
         stops: 1,
         fareClass: 'economy',
@@ -41,8 +44,8 @@ var mockFlights = [
         flightNumber: 'AA789',
         from: 'JFK',
         to: 'LAX',
-        depart: '2024-07-01',
-        arrive: '2024-07-01',
+        depart: '2025-07-01',
+        arrive: '2025-07-01',
         duration: '6h 5m',
         stops: 0,
         fareClass: 'economy',
@@ -55,8 +58,8 @@ var mockFlights = [
         flightNumber: 'AC101',
         from: 'YYZ',
         to: 'YVR',
-        depart: '2024-07-02',
-        arrive: '2024-07-02',
+        depart: '2025-07-02',
+        arrive: '2025-07-02',
         duration: '5h 10m',
         stops: 0,
         fareClass: 'business',
@@ -69,8 +72,8 @@ var mockFlights = [
         flightNumber: 'LH400',
         from: 'FRA',
         to: 'JFK',
-        depart: '2024-07-03',
-        arrive: '2024-07-03',
+        depart: '2025-07-03',
+        arrive: '2025-07-03',
         duration: '8h 30m',
         stops: 0,
         fareClass: 'first',
@@ -83,8 +86,8 @@ var mockFlights = [
         flightNumber: 'AV244',
         from: 'BOG',
         to: 'LIM',
-        depart: '2024-07-04',
-        arrive: '2024-07-04',
+        depart: '2025-07-04',
+        arrive: '2025-07-04',
         duration: '3h 10m',
         stops: 0,
         fareClass: 'economy',

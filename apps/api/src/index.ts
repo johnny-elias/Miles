@@ -1,11 +1,15 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
+import authRoutes from './routes/auth';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
+
+// Auth routes
+app.use('/auth', authRoutes);
 
 // Toy in-memory database of flights
 const mockFlights = [
@@ -96,7 +100,7 @@ const mockFlights = [
 ];
 
 // Mock search endpoint
-app.get('/search', (req, res) => {
+app.get('/search', (req: Request, res: Response) => {
   // Extract query params
   const { from, to, depart, fareClass } = req.query;
 
