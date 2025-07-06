@@ -114,7 +114,7 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
   const [destination, setDestination] = useState(initialSearchParams?.to || '');
 
   const [departureDate, setDepartureDate] = useState<Date | null>(
-    initialSearchParams?.depart ? new Date(initialSearchParams.depart) : new Date()
+    initialSearchParams?.depart ? new Date(initialSearchParams.depart) : new Date('2025-07-01')
   );
   const [returnDate, setReturnDate] = useState<Date | null>(
     initialSearchParams?.return ? new Date(initialSearchParams.return) : null
@@ -230,36 +230,42 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
         {tripType.value === 'multicity' ? (
           <div className="space-y-4">
             {segments.map((seg, idx) => (
-              <div key={idx} className="flex gap-2 items-center">
-                <AirportAutocomplete
-                  value={seg.from}
-                  onChange={val => handleSegmentChange(idx, 'from', val)}
-                  placeholder="From"
-                  className="flex-1"
-                />
-                <AirportAutocomplete
-                  value={seg.to}
-                  onChange={val => handleSegmentChange(idx, 'to', val)}
-                  placeholder="To"
-                  className="flex-1"
-                />
-                <div className="relative w-full">
+              <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                <div className="col-span-4">
+                  <AirportAutocomplete
+                    value={seg.from}
+                    onChange={val => handleSegmentChange(idx, 'from', val)}
+                    placeholder="From"
+                    className="w-full"
+                  />
+                </div>
+                <div className="col-span-4">
+                  <AirportAutocomplete
+                    value={seg.to}
+                    onChange={val => handleSegmentChange(idx, 'to', val)}
+                    placeholder="To"
+                    className="w-full"
+                  />
+                </div>
+                <div className="col-span-3">
                   <ReactDatePicker
                     selected={seg.date}
                     onChange={date => handleSegmentChange(idx, 'date', date)}
                     placeholderText="Date"
-                    className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 {segments.length > 2 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSegment(idx)}
-                    className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
-                    aria-label="Remove city"
-                  >
-                    <XIcon className="w-4 h-4 text-gray-500" />
-                  </button>
+                  <div className="col-span-1">
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSegment(idx)}
+                      className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                      aria-label="Remove city"
+                    >
+                      <XIcon className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
