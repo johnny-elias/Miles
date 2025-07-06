@@ -7,6 +7,7 @@ import PeopleDropdown from './PeopleDropdown';
 import FareClassDropdown from './FareClassDropdown';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import AirportAutocomplete from './AirportAutocomplete';
 
 const tripTypes = [
     {
@@ -230,19 +231,17 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
           <div className="space-y-4">
             {segments.map((seg, idx) => (
               <div key={idx} className="flex gap-2 items-center">
-                <input
-                  type="text"
-                  placeholder="From"
+                <AirportAutocomplete
                   value={seg.from}
-                  onChange={e => handleSegmentChange(idx, 'from', e.target.value)}
-                  className="flex-1 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={val => handleSegmentChange(idx, 'from', val)}
+                  placeholder="From"
+                  className="flex-1"
                 />
-                <input
-                  type="text"
-                  placeholder="To"
+                <AirportAutocomplete
                   value={seg.to}
-                  onChange={e => handleSegmentChange(idx, 'to', e.target.value)}
-                  className="flex-1 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={val => handleSegmentChange(idx, 'to', val)}
+                  placeholder="To"
+                  className="flex-1"
                 />
                 <div className="relative w-full">
                   <ReactDatePicker
@@ -276,12 +275,11 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-center">
             {/* Origin Input */}
             <div className="lg:col-span-3">
-              <input
-                type="text"
-                placeholder="From"
+              <AirportAutocomplete
                 value={origin}
-                onChange={(e) => setOrigin(e.target.value)}
-                className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={setOrigin}
+                placeholder="From"
+                className="w-full"
               />
             </div>
 
@@ -294,12 +292,11 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
 
             {/* Destination Input */}
             <div className="lg:col-span-3">
-              <input
-                type="text"
-                placeholder="To"
+              <AirportAutocomplete
                 value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={setDestination}
+                placeholder="To"
+                className="w-full"
               />
             </div>
 
