@@ -44,10 +44,11 @@ interface PeopleDropdownProps {
   selected: { adults: number; children: number; infants: number; };
   onSelect: (v: { adults: number; children: number; infants: number; }) => void;
   className?: string;
+  isOpen: boolean;
+  onToggle: () => void;
 }
 
-export default function PeopleDropdown({ selected, onSelect, className = '' }: PeopleDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function PeopleDropdown({ selected, onSelect, className = '', isOpen, onToggle }: PeopleDropdownProps) {
   const [tempAdults, setTempAdults] = useState(selected.adults);
   const [tempChildren, setTempChildren] = useState(selected.children);
   const [tempInfants, setTempInfants] = useState(selected.infants);
@@ -64,11 +65,7 @@ export default function PeopleDropdown({ selected, onSelect, className = '' }: P
 
   const handleDone = () => {
     onSelect({ adults: tempAdults, children: tempChildren, infants: tempInfants });
-    setIsOpen(false);
-  };
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
+    onToggle();
   };
 
   return (
@@ -76,11 +73,11 @@ export default function PeopleDropdown({ selected, onSelect, className = '' }: P
       <button
         type="button"
         className="w-full h-12 flex items-center px-3 py-2 border rounded-lg bg-white dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100 shadow"
-        onClick={handleToggle}
+        onClick={onToggle}
       >
         <PersonIcon />
         <span className="ml-2">{totalTravelers}</span>
-        <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+        <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
       </button>
 
       {isOpen && (
@@ -112,7 +109,7 @@ export default function PeopleDropdown({ selected, onSelect, className = '' }: P
             />
             <hr className="my-2 border-gray-200 dark:border-gray-600" />
             <div className="flex justify-end space-x-6 mt-2">
-                 <button type="button" onClick={handleToggle} className="font-semibold text-gray-600 dark:text-gray-300 hover:text-primary">Cancel</button>
+                 <button type="button" onClick={onToggle} className="font-semibold text-gray-600 dark:text-gray-300 hover:text-primary">Cancel</button>
                  <button type="button" onClick={handleDone} className="font-semibold text-primary dark:text-primary-dark hover:underline">Done</button>
             </div>
         </div>

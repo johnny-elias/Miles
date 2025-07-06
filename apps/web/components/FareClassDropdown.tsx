@@ -38,35 +38,31 @@ interface FareClassDropdownProps {
   onSelect: (v: { label: string; value: string; icon: JSX.Element; }) => void;
   classes: { label: string; value: string; icon: JSX.Element; }[];
   className?: string;
+  isOpen: boolean;
+  onToggle: () => void;
 }
 
-export default function FareClassDropdown({ selected, onSelect, classes, className = '' }: FareClassDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-  };
-
+export default function FareClassDropdown({ selected, onSelect, classes, className = '', isOpen, onToggle }: FareClassDropdownProps) {
   const handleSelect = (fareClass: { label: string; value: string; icon: JSX.Element; }) => {
     onSelect(fareClass);
-    setIsOpen(false);
+    onToggle();
   };
 
   return (
     <div className={`relative ${className}`}>
       <button
         type="button"
-        className="w-full h-12 flex items-center justify-between px-3 py-2 border rounded-lg bg-white dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100 shadow"
-        onClick={handleToggle}
+        className="w-full min-w-max h-12 flex items-center justify-between px-3 py-2 border rounded-lg bg-white dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100 shadow"
+        onClick={onToggle}
       >
         <div className="flex items-center">
           {selected.icon}
-          <span>{selected.label}</span>
+          <span className="whitespace-nowrap">{selected.label}</span>
         </div>
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+        <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
       </button>
       {isOpen && (
-        <ul className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-lg shadow divide-y divide-gray-100 dark:divide-gray-800">
+        <ul className="absolute z-50 mt-1 w-full min-w-max bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-lg shadow divide-y divide-gray-100 dark:divide-gray-800">
           {classes.map((f) => (
             <li key={f.value}>
               <button
@@ -75,7 +71,7 @@ export default function FareClassDropdown({ selected, onSelect, classes, classNa
                 onClick={() => handleSelect(f)}
               >
                 {f.icon}
-                <span>{f.label}</span>
+                <span className="whitespace-nowrap">{f.label}</span>
               </button>
             </li>
           ))}

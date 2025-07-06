@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import MapPlaceholder from './MapPlaceholder';
 import TripTypeDropdown from './TripTypeDropdown';
 import PeopleDropdown from './PeopleDropdown';
@@ -9,16 +9,58 @@ import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const tripTypes = [
-  { label: 'One-way', value: 'oneway' },
-  { label: 'Round-trip', value: 'roundtrip' },
-  { label: 'Multi-city', value: 'multicity' },
+    {
+      label: "One-way",
+      value: "oneway",
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+      ),
+    },
+    {
+      label: "Round-trip",
+      value: "roundtrip",
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H7a4 4 0 100 8" /></svg>
+      ),
+    },
+    {
+      label: "Multi-city",
+      value: "multicity",
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="18" cy="12" r="2" /></svg>
+      ),
+    },
 ];
 
 const fareClasses = [
-    { label: 'Economy', value: 'economy' },
-    { label: 'Premium Economy', value: 'premium_economy' },
-    { label: 'Business', value: 'business' },
-    { label: 'First', value: 'first' },
+    {
+      label: "Economy",
+      value: "economy",
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="6" rx="2" /><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" /></svg>
+      ),
+    },
+    {
+      label: "Premium Economy",
+      value: "premium",
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="6" rx="2" /><path d="M8 16v2a2 2 0 002 2h4a2 2 0 002-2v-2" /></svg>
+      ),
+    },
+    {
+      label: "Business",
+      value: "business",
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="8" rx="3" /><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" /></svg>
+      ),
+    },
+    {
+      label: "First",
+      value: "first",
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="8" rx="4" /><path d="M12 8v8" /></svg>
+      ),
+    },
 ];
 
 /**
@@ -70,6 +112,24 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
     initialSearchParams?.return ? new Date(initialSearchParams.return) : null
   );
 
+  // Add this state to control which dropdown is open
+  const [openDropdown, setOpenDropdown] = useState<null | "tripType" | "people" | "fareClass">(null);
+
+  // Ref for the dropdown area
+  const dropdownsRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!openDropdown) return;
+    function handleClick(event: MouseEvent) {
+      if (dropdownsRef.current && !dropdownsRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [openDropdown]);
+
   /**
    * Handles the search button click.
    * It constructs a URL with all the form data as query parameters
@@ -107,9 +167,28 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg">
         <div className="flex flex-wrap gap-4 mb-4">
-          <TripTypeDropdown selected={tripType} onSelect={setTripType} types={tripTypes} />
-          <PeopleDropdown selected={people} onSelect={setPeople} />
-          <FareClassDropdown selected={fareClass} onSelect={setFareClass} classes={fareClasses} />
+          <div ref={dropdownsRef} className="flex gap-4">
+            <TripTypeDropdown
+              selected={tripType}
+              onSelect={setTripType}
+              types={tripTypes}
+              isOpen={openDropdown === "tripType"}
+              onToggle={() => setOpenDropdown(openDropdown === "tripType" ? null : "tripType")}
+            />
+            <PeopleDropdown
+              selected={people}
+              onSelect={setPeople}
+              isOpen={openDropdown === "people"}
+              onToggle={() => setOpenDropdown(openDropdown === "people" ? null : "people")}
+            />
+            <FareClassDropdown
+              selected={fareClass}
+              onSelect={setFareClass}
+              classes={fareClasses}
+              isOpen={openDropdown === "fareClass"}
+              onToggle={() => setOpenDropdown(openDropdown === "fareClass" ? null : "fareClass")}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-center">
