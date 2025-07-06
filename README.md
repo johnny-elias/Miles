@@ -119,26 +119,6 @@ cp .env.example .env
 | `EMAIL_FROM`                             | Verified SES/SendGrid sender       |
 | `OPENAI_API_KEY`                         | (Optional) entity-extraction tasks |
 
----
-
-## Architecture Overview
-
-```mermaid
-flowchart LR
-    UI["Next.js Front-end"] -- "GraphQL/tRPC" --> API["Fastify API"]
-    API --> DB[(PostgreSQL)]
-    API --> Search[(Typesense)]
-    
-    subgraph Workers
-      Crawler1["Lambda\nLifeMiles"] --> DB
-      Crawler2["Lambda\nAeroplan"] --> DB
-      Alerts["SQS\nLambda\nEmail/WebPush"] <-- DB
-    end
-    
-    API <--> Redis[(Cache / PubSub)]
-```
-
-*Each crawler publishes seat deltas; alert workers fan-out messages to subscribed users in <200 ms.*
 
 ---
 
