@@ -41,30 +41,34 @@ const Counter: FC<CounterProps> = ({ label, description, count, onIncrement, onD
 );
 
 interface PeopleDropdownProps {
-  value: { adults: number; children: number; };
-  onChange: (v: { adults: number; children: number; }) => void;
-  isOpen: boolean;
-  onToggle: () => void;
-  onDone: () => void; // Add onDone prop
+  selected: { adults: number; children: number; infants: number; };
+  onSelect: (v: { adults: number; children: number; infants: number; }) => void;
   className?: string;
 }
 
-export default function PeopleDropdown({ value, onChange, isOpen, onToggle, onDone, className = '' }: PeopleDropdownProps) {
-  const [tempAdults, setTempAdults] = useState(value.adults);
-  const [tempChildren, setTempChildren] = useState(value.children);
+export default function PeopleDropdown({ selected, onSelect, className = '' }: PeopleDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [tempAdults, setTempAdults] = useState(selected.adults);
+  const [tempChildren, setTempChildren] = useState(selected.children);
+  const [tempInfants, setTempInfants] = useState(selected.infants);
 
-  const totalTravelers = value.adults + value.children;
+  const totalTravelers = selected.adults + selected.children + selected.infants;
 
   useEffect(() => {
     if (isOpen) {
-      setTempAdults(value.adults);
-      setTempChildren(value.children);
+      setTempAdults(selected.adults);
+      setTempChildren(selected.children);
+      setTempInfants(selected.infants);
     }
-  }, [isOpen, value]);
+  }, [isOpen, selected]);
 
   const handleDone = () => {
-    onChange({ adults: tempAdults, children: tempChildren });
-    onDone();
+    onSelect({ adults: tempAdults, children: tempChildren, infants: tempInfants });
+    setIsOpen(false);
+  };
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
   };
 
   return (
@@ -72,7 +76,7 @@ export default function PeopleDropdown({ value, onChange, isOpen, onToggle, onDo
       <button
         type="button"
         className="w-full h-12 flex items-center px-3 py-2 border rounded-lg bg-white dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100 shadow"
-        onClick={onToggle}
+        onClick={handleToggle}
       >
         <PersonIcon />
         <span className="ml-2">{totalTravelers}</span>
@@ -85,22 +89,30 @@ export default function PeopleDropdown({ value, onChange, isOpen, onToggle, onDo
                 label="Adults"
                 description=""
                 count={tempAdults}
-                onIncrement={() => setTempAdults(a => Math.min(8 - tempChildren, a + 1))}
+                onIncrement={() => setTempAdults(a => Math.min(8 - tempChildren - tempInfants, a + 1))}
                 onDecrement={() => setTempAdults(a => Math.max(1, a - 1))}
                 min={1}
-                max={8 - tempChildren}
+                max={8 - tempChildren - tempInfants}
             />
              <Counter
                 label="Children"
                 description="Aged 2-11"
                 count={tempChildren}
-                onIncrement={() => setTempChildren(c => Math.min(8 - tempAdults, c + 1))}
+                onIncrement={() => setTempChildren(c => Math.min(8 - tempAdults - tempInfants, c + 1))}
                 onDecrement={() => setTempChildren(c => Math.max(0, c - 1))}
-                max={8 - tempAdults}
+                max={8 - tempAdults - tempInfants}
+            />
+            <Counter
+                label="Infants"
+                description="Under 2"
+                count={tempInfants}
+                onIncrement={() => setTempInfants(i => Math.min(8 - tempAdults - tempChildren, i + 1))}
+                onDecrement={() => setTempInfants(i => Math.max(0, i - 1))}
+                max={8 - tempAdults - tempChildren}
             />
             <hr className="my-2 border-gray-200 dark:border-gray-600" />
             <div className="flex justify-end space-x-6 mt-2">
-                 <button type="button" onClick={onToggle} className="font-semibold text-gray-600 dark:text-gray-300 hover:text-primary">Cancel</button>
+                 <button type="button" onClick={handleToggle} className="font-semibold text-gray-600 dark:text-gray-300 hover:text-primary">Cancel</button>
                  <button type="button" onClick={handleDone} className="font-semibold text-primary dark:text-primary-dark hover:underline">Done</button>
             </div>
         </div>

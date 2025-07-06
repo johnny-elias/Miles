@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from 'react';
+
 const fareClasses = [
     {
       label: "Economy",
@@ -32,22 +34,30 @@ const fareClasses = [
 ];
 
 interface FareClassDropdownProps {
-  value: string;
-  onChange: (v: string) => void;
-  isOpen: boolean;
-  onToggle: () => void;
+  selected: { label: string; value: string; icon: JSX.Element; };
+  onSelect: (v: { label: string; value: string; icon: JSX.Element; }) => void;
+  classes: { label: string; value: string; icon: JSX.Element; }[];
   className?: string;
 }
 
-export default function FareClassDropdown({ value, onChange, isOpen, onToggle, className = '' }: FareClassDropdownProps) {
-  const selected = fareClasses.find((f) => f.value === value) || fareClasses[0];
+export default function FareClassDropdown({ selected, onSelect, classes, className = '' }: FareClassDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleSelect = (fareClass: { label: string; value: string; icon: JSX.Element; }) => {
+    onSelect(fareClass);
+    setIsOpen(false);
+  };
 
   return (
     <div className={`relative ${className}`}>
       <button
         type="button"
         className="w-full h-12 flex items-center justify-between px-3 py-2 border rounded-lg bg-white dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100 shadow"
-        onClick={onToggle}
+        onClick={handleToggle}
       >
         <div className="flex items-center">
           {selected.icon}
@@ -57,12 +67,12 @@ export default function FareClassDropdown({ value, onChange, isOpen, onToggle, c
       </button>
       {isOpen && (
         <ul className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-lg shadow divide-y divide-gray-100 dark:divide-gray-800">
-          {fareClasses.map((f) => (
+          {classes.map((f) => (
             <li key={f.value}>
               <button
                 type="button"
-                className={`flex items-center w-full px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${value === f.value ? 'font-semibold text-primary' : ''}`}
-                onClick={() => onChange(f.value)}
+                className={`flex items-center w-full px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${selected.value === f.value ? 'font-semibold text-primary' : ''}`}
+                onClick={() => handleSelect(f)}
               >
                 {f.icon}
                 <span>{f.label}</span>

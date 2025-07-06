@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from 'react';
+
 const tripTypes = [
     {
       label: "One-way",
@@ -25,22 +27,30 @@ const tripTypes = [
 ];
 
 interface TripTypeDropdownProps {
-  value: string;
-  onChange: (v: string) => void;
-  isOpen: boolean;
-  onToggle: () => void;
+  selected: { label: string; value: string; icon: JSX.Element; };
+  onSelect: (v: { label: string; value: string; icon: JSX.Element; }) => void;
+  types: { label: string; value: string; icon: JSX.Element; }[];
   className?: string;
 }
 
-export default function TripTypeDropdown({ value, onChange, isOpen, onToggle, className = '' }: TripTypeDropdownProps) {
-  const selected = tripTypes.find((t) => t.value === value) || tripTypes[0];
+export default function TripTypeDropdown({ selected, onSelect, types, className = '' }: TripTypeDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleSelect = (tripType: { label: string; value: string; icon: JSX.Element; }) => {
+    onSelect(tripType);
+    setIsOpen(false);
+  };
 
   return (
     <div className={`relative ${className}`}>
     <button
         type="button"
         className="w-full h-12 flex items-center justify-between px-3 py-2 border rounded-lg bg-white dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100 shadow"
-        onClick={onToggle}
+        onClick={handleToggle}
       >
         <div className="flex items-center">
           {selected.icon}
@@ -50,12 +60,12 @@ export default function TripTypeDropdown({ value, onChange, isOpen, onToggle, cl
       </button>
       {isOpen && (
         <ul className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-lg shadow divide-y divide-gray-100 dark:divide-gray-800">
-          {tripTypes.map((t) => (
+          {types.map((t) => (
             <li key={t.value}>
               <button
                 type="button"
-                className={`flex items-center w-full px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${value === t.value ? 'font-semibold text-primary' : ''}`}
-                onClick={() => onChange(t.value)}
+                className={`flex items-center w-full px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${selected.value === t.value ? 'font-semibold text-primary' : ''}`}
+                onClick={() => handleSelect(t)}
               >
                 {t.icon}
                 <span>{t.label}</span>
