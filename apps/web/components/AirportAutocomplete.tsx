@@ -14,6 +14,7 @@ interface AirportAutocompleteProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  multiple?: boolean;
 }
 
 // Convert the airports object to an array and filter out those without IATA code
@@ -35,27 +36,43 @@ function highlightMatch(text: string, query: string, highlightClass = "bg-blue-5
   );
 }
 
-export default function AirportAutocomplete({ value, onChange, placeholder = "Airport, city, or code", className = '' }: AirportAutocompleteProps) {
-  const [inputValue, setInputValue] = useState(value);
+export default function AirportAutocomplete({ 
+  value, 
+  onChange, 
+  placeholder = "Airport, city, or code", 
+  className = '',
+  multiple = false 
+}: AirportAutocompleteProps) {
+  const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIdx, setHighlightedIdx] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Parse multiple airports from value
+  const selectedAirports = multiple ? value.split(',').filter(v => v.trim()) : [value];
+  const displayValue = multiple ? selectedAirports.join(', ') : value;
 
   const query = inputValue.trim();
   let filtered: Airport[] = [];
   if (query.length > 0) {
     const q = query.toLowerCase();
+    // Filter out already selected airports
+    const selectedCodes = selectedAirports.map(code => code.trim().toUpperCase());
+    const availableAirports = airports.filter(a => !selectedCodes.includes(a.iata));
+    
     // Prioritize: IATA code, then city, then name, then country
-    const byIata = airports.filter(a => a.iata.toLowerCase().startsWith(q));
-    const byCity = airports.filter(a => !byIata.includes(a) && a.city?.toLowerCase().includes(q));
-    const byName = airports.filter(a => !byIata.includes(a) && !byCity.includes(a) && a.name?.toLowerCase().includes(q));
-    const byCountry = airports.filter(a => !byIata.includes(a) && !byCity.includes(a) && !byName.includes(a) && a.country?.toLowerCase().includes(q));
+    const byIata = availableAirports.filter(a => a.iata.toLowerCase().startsWith(q));
+    const byCity = availableAirports.filter(a => !byIata.includes(a) && a.city?.toLowerCase().includes(q));
+    const byName = availableAirports.filter(a => !byIata.includes(a) && !byCity.includes(a) && a.name?.toLowerCase().includes(q));
+    const byCountry = availableAirports.filter(a => !byIata.includes(a) && !byCity.includes(a) && !byName.includes(a) && a.country?.toLowerCase().includes(q));
     filtered = [...byIata, ...byCity, ...byName, ...byCountry].slice(0, 5);
   }
 
   useEffect(() => {
-    setInputValue(value);
-  }, [value]);
+    if (!multiple) {
+      setInputValue(value);
+    }
+  }, [value, multiple]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -88,28 +105,68 @@ export default function AirportAutocomplete({ value, onChange, placeholder = "Ai
   }
 
   function selectAirport(airport: Airport) {
-    setInputValue(`${airport.city} (${airport.iata}) - ${airport.name}`);
-    onChange(airport.iata);
+    if (multiple) {
+      // Add to existing airports
+      const newAirports = [...selectedAirports, airport.iata];
+      onChange(newAirports.join(','));
+      setInputValue('');
+    } else {
+      setInputValue(`${airport.city} (${airport.iata}) - ${airport.name}`);
+      onChange(airport.iata);
+    }
     setIsOpen(false);
+  }
+
+  function removeAirport(airportCode: string) {
+    if (multiple) {
+      const newAirports = selectedAirports.filter(code => code.trim() !== airportCode);
+      onChange(newAirports.join(','));
+    }
   }
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={e => {
-          setInputValue(e.target.value);
-          setIsOpen(true);
-          setHighlightedIdx(0);
-          onChange("");
-        }}
-        onFocus={() => setIsOpen(true)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        autoComplete="off"
-      />
+      <div className="space-y-2">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={e => {
+            setInputValue(e.target.value);
+            setIsOpen(true);
+            setHighlightedIdx(0);
+            if (!multiple) {
+              onChange("");
+            }
+          }}
+          onFocus={() => setIsOpen(true)}
+          onKeyDown={handleKeyDown}
+          placeholder={multiple ? "Add airports..." : placeholder}
+          className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          autoComplete="off"
+        />
+        
+        {/* Display selected airports as tags */}
+        {multiple && selectedAirports.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {selectedAirports.map((code, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
+              >
+                {code.trim()}
+                <button
+                  type="button"
+                  onClick={() => removeAirport(code.trim())}
+                  className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      
       {isOpen && filtered.length > 0 && (
         <ul className="absolute z-50 mt-1 min-w-[28rem] max-w-full bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-lg shadow divide-y divide-gray-100 dark:divide-gray-800 max-h-72 overflow-auto">
           {filtered.map((a, idx) => (

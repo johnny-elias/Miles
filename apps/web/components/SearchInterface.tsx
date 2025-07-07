@@ -31,6 +31,7 @@ const tripTypes = [
         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="18" cy="12" r="2" /></svg>
       ),
     },
+
 ];
 
 const fareClasses = [
@@ -112,15 +113,17 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
     fareClasses.find(f => f.value === initialSearchParams?.fareClass) || fareClasses[0]
   );
 
+  // Single route state (for one-way, round-trip, multi-city)
   const [origin, setOrigin] = useState(initialSearchParams?.from || '');
   const [destination, setDestination] = useState(initialSearchParams?.to || '');
-
   const [departureDate, setDepartureDate] = useState<Date | null>(
     initialSearchParams?.depart ? new Date(initialSearchParams.depart) : new Date('2025-07-01')
   );
   const [returnDate, setReturnDate] = useState<Date | null>(
     initialSearchParams?.return ? new Date(initialSearchParams.return) : null
   );
+
+
 
   // Add this state to control which dropdown is open
   const [openDropdown, setOpenDropdown] = useState<null | "tripType" | "people" | "fareClass">(null);
@@ -157,6 +160,8 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
     setSegments(segs => segs.length > 2 ? segs.filter((_, i) => i !== idx) : segs);
   };
 
+
+
   // Reset segments if tripType changes away from multicity
   useEffect(() => {
     if (tripType.value !== 'multicity') {
@@ -167,6 +172,8 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
     }
   }, [tripType.value]);
 
+
+
   /**
    * Handles the search button click.
    * It constructs a URL with all the form data as query parameters
@@ -175,13 +182,36 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
   const handleSearch = () => {
     const params = new URLSearchParams();
 
-    // Add all form fields to the search parameters
-    if (origin) params.set('from', origin);
-    if (destination) params.set('to', destination);
-    if (departureDate) params.set('depart', departureDate.toISOString().split('T')[0]);
-    if (returnDate && tripType.value === 'roundtrip') {
-      params.set('return', returnDate.toISOString().split('T')[0]);
+    if (tripType.value === 'multicity') {
+      // Handle multi-city search
+      segments.forEach((seg, idx) => {
+        if (seg.from) params.set(`from${idx}`, seg.from);
+        if (seg.to) params.set(`to${idx}`, seg.to);
+        if (seg.date) {
+          const year = seg.date.getFullYear();
+          const month = (seg.date.getMonth() + 1).toString().padStart(2, '0');
+          const day = seg.date.getDate().toString().padStart(2, '0');
+          params.set(`date${idx}`, `${year}-${month}-${day}`);
+        }
+      });
+    } else {
+      // Handle single route search
+      if (origin) params.set('from', origin);
+      if (destination) params.set('to', destination);
+      if (departureDate) {
+        const year = departureDate.getFullYear();
+        const month = (departureDate.getMonth() + 1).toString().padStart(2, '0');
+        const day = departureDate.getDate().toString().padStart(2, '0');
+        params.set('depart', `${year}-${month}-${day}`);
+      }
+      if (returnDate && tripType.value === 'roundtrip') {
+        const year = returnDate.getFullYear();
+        const month = (returnDate.getMonth() + 1).toString().padStart(2, '0');
+        const day = returnDate.getDate().toString().padStart(2, '0');
+        params.set('return', `${year}-${month}-${day}`);
+      }
     }
+
     params.set('tripType', tripType.value);
     params.set('adults', people.adults.toString());
     params.set('children', people.children.toString());
@@ -228,7 +258,6 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
           </div>
         </div>
 
-        {/* Multi-city dynamic segments */}
         {tripType.value === 'multicity' ? (
           <div className="space-y-4">
             {segments.map((seg, idx) => (
@@ -288,6 +317,7 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
                 onChange={setOrigin}
                 placeholder="From"
                 className="w-full"
+                multiple={true}
               />
             </div>
 
@@ -305,6 +335,7 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
                 onChange={setDestination}
                 placeholder="To"
                 className="w-full"
+                multiple={true}
               />
             </div>
 
