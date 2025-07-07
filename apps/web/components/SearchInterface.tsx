@@ -6,8 +6,7 @@ import MapPlaceholder from './MapPlaceholder';
 import TripTypeDropdown from './TripTypeDropdown';
 import PeopleDropdown from './PeopleDropdown';
 import FareClassDropdown from './FareClassDropdown';
-import ReactDatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import CustomCalendar from './CustomCalendar';
 import AirportAutocomplete from './AirportAutocomplete';
 
 const tripTypes = [
@@ -203,7 +202,7 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg">
+      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg max-w-7xl mx-auto">
         <div className="flex flex-wrap gap-4 mb-4">
           <div ref={dropdownsRef} className="flex gap-4">
             <TripTypeDropdown
@@ -251,11 +250,11 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
                   />
                 </div>
                 <div className="col-span-3">
-                  <ReactDatePicker
+                  <CustomCalendar
                     selected={seg.date}
                     onChange={date => handleSegmentChange(idx, 'date', date)}
-                    placeholderText="Date"
-                    className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Date"
+                    className="w-full"
                   />
                 </div>
                 {segments.length > 2 && (
@@ -312,27 +311,27 @@ export default function SearchInterface({ initialSearchParams }: SearchInterface
             {/* Date Pickers */}
             <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="relative w-full">
-                  <ReactDatePicker
+                  <CustomCalendar
                     selected={departureDate}
                     onChange={(date) => setDepartureDate(date)}
                     selectsStart
                     startDate={departureDate}
                     endDate={returnDate}
-                    placeholderText="Departure"
-                    className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Departure"
+                    className="w-full"
                   />
                 </div>
                 <div className="relative w-full">
-                  <ReactDatePicker
+                  <CustomCalendar
                     selected={returnDate}
                     onChange={(date) => setReturnDate(date)}
                     selectsEnd
                     startDate={departureDate}
                     endDate={returnDate}
                     minDate={departureDate}
-                    placeholderText="Return"
+                    placeholder="Return"
                     disabled={tripType.value !== 'roundtrip'}
-                    className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    className="w-full"
                   />
                 </div>
             </div>
